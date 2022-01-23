@@ -1,15 +1,17 @@
-const CreateError = require('http-errors');
-const contacts = require('../../models/contacts');
+const { BadRequest, NotFound } = require('http-errors');
+const { Contact } = require('../../models');
 const { contactSchema } = require('../../schemas');
 
 const updateContact = async ({ params: { contactId }, body }, res) => {
   const { error } = contactSchema.validate(body);
 
-  if (error) throw new CreateError.BadRequest(error.message);
+  if (error) throw new BadRequest(error.message);
 
-  const result = await contacts.updateContact(contactId, body);
+  const result = await Contact.findByIdAndUpdate(contactId, body, {
+    new: true,
+  });
 
-  if (!result) throw new CreateError.NotFound();
+  if (!result) throw new NotFound(`Contact with id=${contactId} not found`);
 
   res.json(result);
 };

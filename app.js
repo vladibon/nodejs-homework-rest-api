@@ -3,6 +3,7 @@ const logger = require('morgan');
 const cors = require('cors');
 
 const contactsRouter = require('./routes/api/contacts');
+const { errorHandler } = require('./middlewares');
 
 const app = express();
 
@@ -13,10 +14,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/contacts', contactsRouter);
-
-app.use((err, req, res, next) => {
-  const { status = 500, message = 'Server error' } = err;
-  res.status(status).json({ message });
-});
+app.use(errorHandler);
 
 module.exports = app;
