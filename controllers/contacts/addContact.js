@@ -1,17 +1,7 @@
-const CreateError = require('http-errors');
-const contacts = require('../../models/contacts');
-const { contactSchema } = require('../../schemas');
+const { Contact } = require('../../models');
 
-const addContact = async (req, res, next) => {
-  try {
-    const { error } = contactSchema.validate(req.body);
-
-    if (error) throw new CreateError.BadRequest(error.message);
-
-    res.status(201).json(await contacts.addContact(req.body));
-  } catch (error) {
-    next(error);
-  }
+const addContact = async ({ body }, res) => {
+  res.status(201).json(await Contact.create(body));
 };
 
 module.exports = addContact;
