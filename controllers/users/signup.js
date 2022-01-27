@@ -7,10 +7,7 @@ const signup = async ({ body }, res) => {
   if (await User.findOne({ email }))
     throw new Conflict(`User with email:${email} already exist`);
 
-  const newUser = new User({ email });
-  newUser.setPassword(password);
-
-  const user = await newUser.save();
+  const user = await new User({ email }).setPassword(password).save();
 
   res.status(201).json({
     user: {
