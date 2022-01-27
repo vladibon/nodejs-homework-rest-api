@@ -1,8 +1,8 @@
 const { Conflict } = require('http-errors');
 const { User } = require('../../models');
 
-const signup = async ({ body }, res) => {
-  const { email, password } = body;
+const signup = async (req, res) => {
+  const { email, password } = req.body;
 
   if (await User.findOne({ email }))
     throw new Conflict(`User with email:${email} already exist`);
