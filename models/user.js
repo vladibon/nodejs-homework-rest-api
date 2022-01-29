@@ -40,7 +40,7 @@ userSchema.methods.comparePassword = function (password) {
 };
 
 userSchema.methods.setToken = function (id) {
-  this.token = jwt.sign({ id }, SECRET_KEY, { expiresIn: '1h' });
+  this.token = jwt.sign({ id }, SECRET_KEY, { expiresIn: '1d' });
   return this;
 };
 
@@ -51,9 +51,14 @@ const joiSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const subscriptionJoiSchema = Joi.object({
+  subscription: Joi.string().valid('starter', 'pro', 'business').required(),
+});
+
 const User = model('user', userSchema);
 
 module.exports = {
   User,
   joiSchema,
+  subscriptionJoiSchema,
 };

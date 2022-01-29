@@ -12,14 +12,16 @@ const auth = async (req, _, next) => {
     if (bearer !== 'Bearer') throw new Unauthorized('Not authorized');
 
     const { id } = jwt.verify(token, SECRET_KEY);
+    const user = await User.findById(id);
 
-    req.user = await User.findById(id);
+    if (!user || user.token !== token) throw new Unauthorized('Not authorized');
 
-    if (!req.user) throw new Unauthorized('Not authorized');
+    req.user = user;
 
     next();
   } catch (error) {
-    if (error.message.includes('invalid signature')) error.status = 401;
+    if (error.message.includes('invalid') || error.message.includes('expired'))
+      error.status = 401;
 
     next(error);
   }
