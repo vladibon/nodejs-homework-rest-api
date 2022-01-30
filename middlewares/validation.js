@@ -1,13 +1,11 @@
 const { BadRequest } = require('http-errors');
 
-const validation =
-  schema =>
-  ({ body }, res, next) => {
-    const { error } = schema.validate(body);
+const validation = schema => (req, _, next) => {
+  const { error } = schema.validate(req.body);
 
-    if (error) throw new BadRequest(error.message);
+  if (error) throw new BadRequest(error.message);
 
-    next();
-  };
+  next();
+};
 
 module.exports = validation;
