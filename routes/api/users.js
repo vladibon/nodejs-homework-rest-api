@@ -23,8 +23,7 @@ router.get('/current', auth, ctrlWrapper(ctrl.getCurrent));
 
 router.patch(
   '/avatars',
-  auth,
-  upload.single('avatar'),
+  [auth, upload.single('avatar')],
   ctrlWrapper(ctrl.updateAvatar),
 );
 
