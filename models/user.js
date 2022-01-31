@@ -1,9 +1,13 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 
 const { SECRET_KEY } = process.env;
+
+// eslint-disable-next-line no-useless-escape
+const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const userSchema = Schema(
   {
@@ -11,22 +15,27 @@ const userSchema = Schema(
       type: String,
       required: [true, 'Email is required'],
       unique: true,
+      match: emailRegexp,
     },
     password: {
       type: String,
       required: [true, 'Password is required'],
+      minlength: 6,
     },
     subscription: {
       type: String,
       enum: ['starter', 'pro', 'business'],
       default: 'starter',
     },
+    avatarURL: {
+      type: String,
+      default: null,
+    },
     token: {
       type: String,
       default: null,
     },
   },
-
   { versionKey: false, timestamps: true },
 );
 
@@ -39,15 +48,18 @@ userSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-userSchema.methods.setToken = function (id) {
-  this.token = jwt.sign({ id }, SECRET_KEY, { expiresIn: '1d' });
+userSchema.methods.setAvatar = function () {
+  this.avatarURL = gravatar.url(this.email);
+  return this;
+};
+
+userSchema.methods.setToken = function () {
+  this.token = jwt.sign({ id: this._id }, SECRET_KEY, { expiresIn: '1d' });
   return this;
 };
 
 const joiSchema = Joi.object({
-  email: Joi.string()
-    .email({ tlds: { allow: false } })
-    .required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
 

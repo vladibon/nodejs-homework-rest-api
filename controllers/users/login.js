@@ -9,13 +9,14 @@ const login = async (req, res) => {
   if (!user || !user?.comparePassword(password))
     throw new Unauthorized(`Email or password is wrong`);
 
-  user.setToken(user._id).save();
+  user.setToken().save();
 
   res.json({
     token: user.token,
     user: {
       email: user.email,
       subscription: user.subscription,
+      avatarURL: user.avatarURL,
     },
   });
 };
