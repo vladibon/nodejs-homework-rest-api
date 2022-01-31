@@ -7,12 +7,16 @@ const signup = async (req, res) => {
   if (await User.findOne({ email }))
     throw new Conflict(`User with email:${email} already exist`);
 
-  const user = await new User({ email }).setPassword(password).save();
+  const user = await new User({ email })
+    .setPassword(password)
+    .setAvatar()
+    .save();
 
   res.status(201).json({
     user: {
       email: user.email,
       subscription: user.subscription,
+      avatarURL: user.avatarURL,
     },
   });
 };

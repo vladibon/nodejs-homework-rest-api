@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 
@@ -21,6 +22,10 @@ const userSchema = Schema(
       enum: ['starter', 'pro', 'business'],
       default: 'starter',
     },
+    avatarURL: {
+      type: String,
+      default: null,
+    },
     token: {
       type: String,
       default: null,
@@ -39,8 +44,13 @@ userSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-userSchema.methods.setToken = function (id) {
-  this.token = jwt.sign({ id }, SECRET_KEY, { expiresIn: '1d' });
+userSchema.methods.setAvatar = function () {
+  this.avatarURL = gravatar.url(this.email);
+  return this;
+};
+
+userSchema.methods.setToken = function () {
+  this.token = jwt.sign({ id: this._id }, SECRET_KEY, { expiresIn: '1d' });
   return this;
 };
 
