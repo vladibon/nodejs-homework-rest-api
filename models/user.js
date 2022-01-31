@@ -6,16 +6,21 @@ const Joi = require('joi');
 
 const { SECRET_KEY } = process.env;
 
+// eslint-disable-next-line no-useless-escape
+const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
 const userSchema = Schema(
   {
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
+      match: emailRegexp,
     },
     password: {
       type: String,
       required: [true, 'Password is required'],
+      minlength: 6,
     },
     subscription: {
       type: String,
@@ -31,7 +36,6 @@ const userSchema = Schema(
       default: null,
     },
   },
-
   { versionKey: false, timestamps: true },
 );
 
@@ -55,9 +59,7 @@ userSchema.methods.setToken = function () {
 };
 
 const joiSchema = Joi.object({
-  email: Joi.string()
-    .email({ tlds: { allow: false } })
-    .required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
 
