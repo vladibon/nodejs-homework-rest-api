@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 
 const { auth, upload, validation, ctrlWrapper } = require('../../middlewares');
 const { subscriptionJoiSchema } = require('../../models/user');
@@ -17,5 +18,6 @@ router.patch(
   [auth, upload.single('avatar')],
   ctrlWrapper(ctrl.updateAvatar),
 );
+router.use('/avatars', auth, express.static(path.resolve('./public/avatars')));
 
 module.exports = router;
