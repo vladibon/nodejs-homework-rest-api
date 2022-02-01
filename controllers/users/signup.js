@@ -1,5 +1,6 @@
 const { Conflict } = require('http-errors');
 const { User } = require('../../models');
+const sendEmail = require('../../services/sendEmail');
 
 const signup = async (req, res) => {
   const { email, password } = req.body;
@@ -9,8 +10,11 @@ const signup = async (req, res) => {
 
   const user = await new User({ email })
     .setPassword(password)
+    .setVerificationToken()
     .setAvatar()
     .save();
+
+  await sendEmail(email, user.verificationToken);
 
   res.status(201).json({
     user: {
