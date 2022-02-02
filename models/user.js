@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { nanoid } = require('nanoid');
 const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
@@ -21,6 +22,13 @@ const userSchema = Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: 6,
+    },
+    verificationToken: {
+      type: String,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
     },
     subscription: {
       type: String,
@@ -48,6 +56,17 @@ userSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
+userSchema.methods.setVerificationToken = function (password) {
+  this.verificationToken = nanoid();
+  return this;
+};
+
+userSchema.methods.verifyEmail = function () {
+  this.verificationToken = null;
+  this.verify = true;
+  return this;
+};
+
 userSchema.methods.setAvatar = function () {
   this.avatarURL = gravatar.url(this.email);
   return this;
@@ -63,6 +82,10 @@ const joiSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const emailJoiSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
+});
+
 const subscriptionJoiSchema = Joi.object({
   subscription: Joi.string().valid('starter', 'pro', 'business').required(),
 });
@@ -72,5 +95,6 @@ const User = model('user', userSchema);
 module.exports = {
   User,
   joiSchema,
+  emailJoiSchema,
   subscriptionJoiSchema,
 };
